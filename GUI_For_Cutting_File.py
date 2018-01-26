@@ -1,3 +1,4 @@
+#encoding=utf-8
 import Tkinter
 import tkFileDialog
 import tkMessageBox
@@ -9,7 +10,6 @@ import sys
 reload(sys)   
 sys.setdefaultencoding('utf-8')   
 print(sys.getdefaultencoding())
-
 def openfile():
     #open fileDialog
     sourec_filename = tkFileDialog.askopenfilename(title='File Open', filetypes=[('excel', '*.xls *.xlsx')])
@@ -67,7 +67,6 @@ def cutfile():
 
 
 #main function            
-print u'娴ｇ姴銈介敍锟�'.encode("utf-8")
 global sourec_filename,cut_number
 sourec_filename=''
 root = Tkinter.Tk()
@@ -105,3 +104,4 @@ ent3.pack(fill='both')
 print(''.encode('utf-8'))
 root.mainloop()
 
+#eee
