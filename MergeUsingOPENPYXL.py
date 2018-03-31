@@ -33,7 +33,7 @@ for temp in source_filename:
     cols_temp=sheet.max_column
     print data_temp,rows_temp,cols_temp,sheet,Sheet_target
     for x in range(2,rows_temp+1):
-        for y in range(97,+cols_temp+97): #chr(97)='a'
+        for y in range(97,cols_temp+97): #chr(97)='a'
             y=chr(y)
             i='%s%d'%(y,x)
             j='%s%d'%(y,target_row)

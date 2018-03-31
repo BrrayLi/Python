@@ -15,6 +15,7 @@ print os.path.split(filename_target),os.listdir(os.path.split(filename_target)[0
 if os.path.split(filename_target)[1] in os.listdir(os.path.split(filename_target)[0]):
     print u'文件已存在！'
     exit()
+    
 file_temp=xlwt.Workbook()
 Sheet_target=file_temp.add_sheet('Sheet1')
 target_row=1
