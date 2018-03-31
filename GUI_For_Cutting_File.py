@@ -88,7 +88,7 @@ tex3=Tkinter.StringVar()
 ent1=Tkinter.Entry(fm2,textvariable=tex1)
 ent2=Tkinter.Entry(fm2,textvariable=tex2,state='disabled')
 ent3=Tkinter.Entry(fm3,textvariable=tex3,state='disabled')
-tex1.set('2000')
+tex1.set('500')
 tex2.set('Number Of Each Pieces:')
 tex3.set('App for cutting *.xls|*.xlsx to pieces!')
 
