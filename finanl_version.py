@@ -64,10 +64,9 @@ if len(source_filename)==0:
     print u'无文件被选择'
     exit() 
 filename_target=os.path.splitext(source_filename[0])[0]+'-Merge.xlsx'
-print os.path.split(filename_target),os.listdir(os.path.split(filename_target)[0])
 if os.path.split(filename_target)[1] in os.listdir(os.path.split(filename_target)[0]):
     print u'文件已存在！'
-#    exit()
+    exit()
 
 file_write=openpyxl.Workbook()
 file_write.save(filename_target)
