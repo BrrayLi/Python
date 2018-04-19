@@ -56,7 +56,8 @@ def Xlsx_Read(Target_sheet,source_xlsx,begin_row):
             source_index='%s%d'%(chr(y),1)
             target_index='%s%d'%(chr(y),1)
             Target_sheet[target_index].value=source_sheet[source_index].value
-    xlsx_temp.close()          
+    xlsx_temp.close()   
+    del xlsx_temp       
     return  target_row
 
 source_filename=tkFileDialog.askopenfilenames(title='file',filetypes=[('excel','*.xls *.xlsx')])
@@ -70,16 +71,15 @@ if os.path.split(filename_target)[1] in os.listdir(os.path.split(filename_target
 
 file_write=openpyxl.Workbook()
 file_write.save(filename_target)
+file_write.close()
 w1=openpyxl.load_workbook(filename_target)
 Sheet_target=w1[w1.sheetnames[0]]
 target_row=2
 for temp in source_filename:
     print temp
     if os.path.splitext(temp)[1]=='.xls':
-        print 'yy'
         target_row=Xls_Read(Sheet_target,temp,target_row)
     else:
-        print 'nn'
         target_row=Xlsx_Read(Sheet_target,temp,target_row)
 w1.save(filename_target)
 
