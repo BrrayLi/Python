@@ -46,7 +46,6 @@ import openpyxl
 import sys
 
 xls_file=openpyxl.load_workbook('exp.xlsx')
-
 sheet=xls_file[xls_file.sheetnames[0]]
 sql=sheet['A2'].value
 sql=sql.replace('\n','').replace('_x000D_','') #清除回车及excel特有的换行符
@@ -103,3 +102,40 @@ print 'condition_list:',len(condition_list),'\n'
 print condition_list
 '''
 #print 'select '+para1+' from '+table1+' where '+condition
+
+example=[]
+example.sort(lambda x:len(x[1]),reverse=True) #根据表个数进行排序
+result=[]
+inst=[]
+
+try:
+    index=example.index(inst)
+except:
+    index=-1
+    
+if index==-1:
+    #无完全相同项
+    #选对比表格
+    index=1
+    table_result=[]
+    target_index=[]
+    for  index  in  target_index:
+        example_table=example[index][1]
+        table_num_same=0
+        for  table_name in inst[1]:
+            try:
+                example_table.index(table_name) #逐个表查找
+                table_num_same+=1
+            except:
+                pass
+        table_result.append(table_num_same)
+    target_index=table_result.index(max(table_result))
+    #判断参数值是否一致
+    try:
+        example[target_index].index(inst[0])
+    except:
+        pass
+    
+else:
+    result[index]='right exp!'
+
