@@ -8,7 +8,6 @@ step two
 判断同一层级下的条件，计算当前范围内的左右括号数量
 main_exp,length,para1,para2,....
 
-
 相似度判断规则
 1、直接使用list.index查找，完全相同才能确认
 2、判断各元素，table para condition，次序应为para table condition或者table para condition 
@@ -31,14 +30,28 @@ def separate(argue1,argue2):
     while index_end!=-1:
         #是否需要增加条件，第一个出现的（必须比）早，最后一个出现的）必须比（晚
         #argue1[index_begin:index_end].find('(')<=argur1[index_begin:index_end].find(')')   && \
-        # argue1[index_begin:index_end].rfind('(')<=argur1[index_begin:index_end].rfind(')')
-        if argue1[index_begin:index_end].count('(')==argue1[index_begin:index_end].count(')'):
-            temp_list.append(argue1[index_begin:index_end])        
+        #argue1[index_begin:index_end].rfind('(')<=argur1[index_begin:index_end].rfind(')')
+        if argue1[index_begin:index_end].count('(')==argue1[index_begin:index_end].count(')') and \
+            argue1[index_begin:index_end].find('(')<=argue1[index_begin:index_end].find(')')   and \
+            argue1[index_begin:index_end].rfind('(')<=argue1[index_begin:index_end].rfind(')'):
+            temp_list.append(argue1[index_begin:index_end].strip())        
             index_begin=index_end+len(argue2)
         index_end=argue1.find(argue2,index_end+1)    
         #os.system("pause")
-    temp_list.append(argue1[index_begin:])
+    temp_list.append(argue1[index_begin:].strip())
     return temp_list
+def find_max_index(para1, para2):
+    '''
+    用于返回满足para1中最大值的位置，对应的para2中相应位置的值
+    ''' 
+    index=[]
+    max_value=max(para1)
+    while True:
+        try:
+            index.append(para2[para1.index(max_value)])
+        except:
+            break           
+    return index    
 
 import sqlparse
 import os 
@@ -47,6 +60,7 @@ import sys
 
 xls_file=openpyxl.load_workbook('exp.xlsx')
 sheet=xls_file[xls_file.sheetnames[0]]
+for 
 sql=sheet['A2'].value
 sql=sql.replace('\n','').replace('_x000D_','') #清除回车及excel特有的换行符
 sql=' '.join(sql.split())
@@ -91,6 +105,14 @@ else    :
 table_list=separate(table1,',')
 condition_list=separate(condition,'and')
 
+print para_list,table_list,condition_list
+para_list.sort(key=lambda x:len(x),reverse=True)
+table_list.sort(key=lambda x:len(x),reverse=True)
+condition_list.sort(key=lambda x:len(x),reverse=True)
+print para_list,table_list,condition_list
+print type([para_list,table_list,condition_list])
+
+
 '''debug
 print 'para1:'+para1+'\n'
 print 'para_list:',len(para_list),'\n',para_list
@@ -103,39 +125,78 @@ print condition_list
 '''
 #print 'select '+para1+' from '+table1+' where '+condition
 
-example=[]
-example.sort(lambda x:len(x[1]),reverse=True) #根据表个数进行排序
-result=[]
-inst=[]
 
-try:
+example=[]      #供参考使用的例子
+example.sort(lambda x:len(x[1]),reverse=True) #根据表个数进行排序
+inst=[]         #当前需要处理的实例
+result=[] 
+para_count_sum=[]
+
+try:    #判断是否存在一致的语句
     index=example.index(inst)
 except:
-    index=-1
-    
+    index=-1    
 if index==-1:
     #无完全相同项
-    #选对比表格
-    index=1
+    #先对比表格,取相同表格数最大的记录
     table_result=[]
     target_index=[]
+    for index   in  len(example):
+        if  len(example[index][1])==len(inst[1]):
+            target_index.append(1)
+        else:
+            target_index.append(0)
+    target_index=find_max_index(target_index,range(len(example)))
     for  index  in  target_index:
         example_table=example[index][1]
         table_num_same=0
         for  table_name in inst[1]:
             try:
                 example_table.index(table_name) #逐个表查找
-                table_num_same+=1
+                table_num_same+=1                
             except:
                 pass
         table_result.append(table_num_same)
-    target_index=table_result.index(max(table_result))
-    #判断参数值是否一致
-    try:
-        example[target_index].index(inst[0])
-    except:
-        pass
-    
+    target_index=find_max_index(table_result,target_index)
+
+    #判断参数值是否一致,example[0]
+    for index in target_index:
+        try:
+            example[index].index(inst[0])
+            para_count_sum.append(len(inst[0]))
+        except:                
+            #对比参数列表,example[0]
+            example_para=example[index][0]
+            para_count=0
+            for i in len(inst[0]):
+                if inst[0][i]==example_para[i]:
+                    para_count=para_count+1
+            para_count_sum.append(para_count)
+    target_index=find_max_index(para_count_sum,target_index)#取符合条件的Index
+
+    #验证条件记录,example[2]
+    condition_count_sum=[]
+    for index in target_index:
+        try:
+            example[index].index(inst[2])
+            condition_count_sum.append(len(inst[2]))
+        except:
+            example_condition=example[index][2]
+            condition_count=0
+            for i in len(inst[2]):
+                if  inst[2][i]==example_para[i]:
+                    condition_count=condition+1                   
+            condition_count_sum.append(condition_count)
+    target_index=find_max_index(condition_count_sum,target_index)
 else:
     result[index]='right exp!'
 
+'''
+设置最终输出格式
+原始SQL|参数列表|涉及表格列表|参考的新函数|入参|入参|入参|.......
+以;为分隔符，存放在csv或者txt文件中
+file_exp_result=open('test.txt')
+for i in cout:
+    file_exp_result.write(sql+';'+para_list+';'+table_list+';'+target_function+';'+para1+';'+'para2'+';'+....)
+
+'''
