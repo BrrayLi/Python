@@ -60,51 +60,65 @@ import sys
 
 xls_file=openpyxl.load_workbook('exp.xlsx')
 sheet=xls_file[xls_file.sheetnames[0]]
-for 
-sql=sheet['A2'].value
-sql=sql.replace('\n','').replace('_x000D_','') #清除回车及excel特有的换行符
-sql=' '.join(sql.split())
-sql=sql.lower()
-#print sql
-condition=''
-#sql='select p1,p2 from (select p from (dsds) t1) t2,dsa2 e3 where t2.serv=21132111 and t1.sfd=213 and fds3=321fd'
-#step 1     判断是否开始有函数,并去除最外层的函数
-if sql.find('decode') != -1:
-    sql=sql[7:]    
-    sql=sql[:sql.rfind(')')]
-if  sql.find('nvl') !=-1:
-    sql=sql[4:len(sql)]
-    sql=sql[:sql.rfind(')')]
-if sql[0:1]=='(':
-    sql=sql[1:sql.rfind(')')]
+sql_sum=[]
+para_sum=[]
+table_sum=[]
+condition_sum=[]
+for index in range(1,sheet.max_row+1):
+    sheet_index='A'+str(index)
+    sql=str(sheet[sheet_index].value)
 
-#print sql
-#os.system("pause")
-#第一个select 即是第一层select from 
-index_begin=sql.find('select')
-index_end=sql.find('from')
-while sql[index_begin:index_end].count('(')!=sql[index_begin:index_end].count(')'):
-    index_end=sql.find('from',index_end+1)
-    if index_end==-1:
-        break
-para1=sql[index_begin+7:index_end-1]
-para_list=separate(para1,',')
+    print index,sql
 
-#第一个from where
-index_begin=index_end
-index_end=sql.find('where')
-while sql[index_begin:index_end].count('(')!=sql[index_begin:index_end].count(')'):
-    index_end=sql.find('where',index_end+1)
-    if index_end==-1:
-        break
-if  index_end==-1:  
-    table1=sql[index_begin+5:]
-else    :
-    table1=sql[index_begin+5:index_end-1]
-    condition=sql[index_end+6:]
-table_list=separate(table1,',')
-condition_list=separate(condition,'and')
+    sql=sql.replace('\n','').replace('_x000D_','') #清除回车及excel特有的换行符
+    sql=' '.join(sql.split())
+    sql=sql.lower()
+    #print sql
+    condition=''
+    #sql='select p1,p2 from (select p from (dsds) t1) t2,dsa2 e3 where t2.serv=21132111 and t1.sfd=213 and fds3=321fd'
+    #step 1     判断是否开始有函数,并去除最外层的函数
+    if sql.find('decode') != -1:
+        sql=sql[7:]    
+        sql=sql[:sql.rfind(')')]
+    if  sql.find('nvl') !=-1:
+        sql=sql[4:len(sql)]
+        sql=sql[:sql.rfind(')')]
+    if sql[0:1]=='(':
+        sql=sql[1:sql.rfind(')')]
+    sql_sum.append(sql)
 
+    #print sql
+    #os.system("pause")
+    #第一个select 即是第一层select from 
+    index_begin=sql.find('select')
+    index_end=sql.find('from')
+    while sql[index_begin:index_end].count('(')!=sql[index_begin:index_end].count(')'):
+        index_end=sql.find('from',index_end+1)
+        if index_end==-1:
+            break
+    para1=sql[index_begin+7:index_end-1]
+    para_list=separate(para1,',')
+    para_sum.append(para_list)
+
+    #第一个from where
+    index_begin=index_end
+    index_end=sql.find('where')
+    while sql[index_begin:index_end].count('(')!=sql[index_begin:index_end].count(')'):
+        index_end=sql.find('where',index_end+1)
+        if index_end==-1:
+            break
+    if  index_end==-1:  
+        table1=sql[index_begin+5:]
+    else    :
+        table1=sql[index_begin+5:index_end-1]
+        condition=sql[index_end+6:]
+    table_list=separate(table1,',')
+    condition_list=separate(condition,'and')
+    table_sum.append(table_list)
+    condition_sum.append(condition_list)
+
+
+'''
 print para_list,table_list,condition_list
 para_list.sort(key=lambda x:len(x),reverse=True)
 table_list.sort(key=lambda x:len(x),reverse=True)
@@ -112,7 +126,7 @@ condition_list.sort(key=lambda x:len(x),reverse=True)
 print para_list,table_list,condition_list
 print type([para_list,table_list,condition_list])
 
-
+'''
 '''debug
 print 'para1:'+para1+'\n'
 print 'para_list:',len(para_list),'\n',para_list
@@ -125,7 +139,7 @@ print condition_list
 '''
 #print 'select '+para1+' from '+table1+' where '+condition
 
-
+'''
 example=[]      #供参考使用的例子
 example.sort(lambda x:len(x[1]),reverse=True) #根据表个数进行排序
 inst=[]         #当前需要处理的实例
@@ -192,11 +206,23 @@ else:
     result[index]='right exp!'
 
 '''
-设置最终输出格式
-原始SQL|参数列表|涉及表格列表|参考的新函数|入参|入参|入参|.......
-以;为分隔符，存放在csv或者txt文件中
-file_exp_result=open('test.txt')
-for i in cout:
-    file_exp_result.write(sql+';'+para_list+';'+table_list+';'+target_function+';'+para1+';'+'para2'+';'+....)
-
 '''
+设置最终输出格式
+原始SQL;参数列表;涉及表格列表;参考的新函数;入参;入参;入参;.......
+以;为分隔符，存放在csv或者txt文件中
+'''
+file_exp_result=open('test.txt','w')
+for i in range(len(sql_sum)):
+    #file_exp_result.write(sql+';'+para_list+';'+table_list+';'+target_function+';'+para1+';'+'para2'+';'+....)
+    file_exp_result.write(sql_sum[i])
+    file_exp_result.write(';'+str(len(para_sum[i])))
+    for  string in para_sum[i]:
+        file_exp_result.write(';'+string)
+    file_exp_result.write(';'+str(len(table_sum[i])))
+    for  string in table_sum[i]:
+        file_exp_result.write(';'+string)
+    file_exp_result.write(';'+str(len(condition_sum[i])))
+    for  string in condition_sum[i]:
+        file_exp_result.write(';'+string)
+    file_exp_result.write('\n')    
+file_exp_result.close()
