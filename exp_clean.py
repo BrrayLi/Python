@@ -89,6 +89,7 @@ def Get_Information(sql):
     para_list=separate(para1,',').sort(key=lambda x:len(x))
 
     #第一个from  where
+    condition=''
     index_begin=index_end
     index_end=sql.find('where')
     while sql[index_begin:index_end].count('(')!=sql[index_begin:index_end].count(')'):
@@ -103,6 +104,12 @@ def Get_Information(sql):
     table_list=separate(table1,',').sort(key=lambda x:len(x))
     condition_list=separate(condition,'and').sort(key=lambda x:len(x))
     
+    #进一步处理条件，取等式左值
+    if  condition_list is not None:    
+        for index in range(len(condition_list)):
+            print condition_list[index]
+            condition_list[index]=Get_Condition_Left(condition_list[index])
+            print condition_list[index]+'\n'
 
     return  [para_list,table_list,condition_list]
 def Compare_sql_1(inst,example_sum):    
@@ -115,7 +122,7 @@ def Compare_sql_1(inst,example_sum):
         #暴力调试
         # print index
 
-        if  len(example_sum[index])> 1 and len(example_sum[index][1])==len(inst[1]):
+??!!        if  example_sum[index] is not None and inst[1] is not None and len(example_sum[index])> 1 and len(example_sum[index][1])==len(inst[1]):
             target_index.append(1)
         else:
             target_index.append(0)
@@ -173,6 +180,7 @@ def Compare_sql_1(inst,example_sum):
 
     #验证条件记录,example_sum[2]，实测验证条件较为困难，可能需要进一步处理
     #是否需要取=、in之类的操作符进行排查，比较此字段是否一致，而非整个condition一致
+    #已建函数Get_Condition_Left取条件的等式左边值，尝试使用此值进行比较
     condition_count_sum=[]
     for index in target_index:
         try:
@@ -187,6 +195,7 @@ def Compare_sql_1(inst,example_sum):
                 #     condition_count=condition+1                   
                 try:
                     example_condition.index(inst[2][i])  #严格一致
+
                     condition_count=condition_count+1
                 except:
                     pass
@@ -198,6 +207,19 @@ def Compare_sql_1(inst,example_sum):
     target_index=find_max_index(condition_count_sum,target_index)
     return  target_index
 
+
+def Get_Condition_Left(argue):
+    #采用正则表达式提取等式左边数据
+    #需要模块re
+    import re
+    pattern=re.compile(r'^.*?(?=( not in| in|<>|<=|>=|=|<|>))')
+    result=re.search(pattern,argue)
+    if result!=None:
+        result=result.group()
+    else:
+        result=[]
+    return result
+    
 
 import random
 import sqlparse
@@ -226,9 +248,10 @@ sheet=xls_file[xls_file.sheetnames[0]]
 for index in range(2,sheet.max_row+1):
     sheet_index='I'+str(index)
     sql=str(sheet[sheet_index].value)
-    sql=SQL_standard(sql)
+    sql=SQL_standard(sql)   
     #增加判断，若存在select则需要提取信息，若不存在select则直接取sql，
-    if sql.find('selcet')!=-1:  
+    if sql.find('select')!=-1:  
+        print 'YES'
         sql=Funcition_remove(sql)
         inst=Get_Information(sql)
     else:
