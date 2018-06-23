@@ -24,6 +24,7 @@ def Read_From_Xlsx(file_name):
     table_list_old=[]
     table_list_new=[]
     table_list_cen=[]
+    
     for i in range(2,sheet_temp.max_row+1):
         table_list_old.append(sheet_temp['D'+str(i)].value)
         table_list_new.append(sheet_temp['B'+str(i)].value)
