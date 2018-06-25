@@ -62,6 +62,7 @@ def Read_From_Txt(file_name):
     #一次性读取所有行，适用于文件较小
     lines=txt_file.readlines()
     for line in lines:
+        line=line.replace('\n','')
         index=line.find('|')    #以|作为分割符，|前为旧表名称，|后为新表名称
         if index!=-1:
             table_old.append(line[:index])
@@ -79,19 +80,30 @@ def Read_From_Txt(file_name):
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
-
-Read_From_Txt('table_list.txt')
-
-
 #创建字典
 dic_table={}
 dic_center={}
 
+#使用txt读取新旧模型对应关系
+table_old,table_new=Read_From_Txt('table_list.txt')
+Add_Dict(dic_table,table_old,table_new)
+table_new,table_center=Read_From_Txt('table_center.txt')
+Add_Dict(dic_center,table_new,table_center)
+
+#暴力调试
+'''
+for index in dic_center.items():
+    print index
+'''
+
+
+'''
+#使用xlsx文件读取对应关系
 for xlsxfile in os.listdir(os.getcwd()+r'\table_list'):
     table_old,table_new,table_center=Read_From_Xlsx(os.getcwd()+'\\table_list\\'+xlsxfile)
     Add_Dict(dic_table,table_old,table_new)
     Add_Dict(dic_center,table_new,table_center)
-
+'''
 
 #取传递参数搜索新旧表对应关系
 if len(sys.argv) >=2:
@@ -100,7 +112,7 @@ if len(sys.argv) >=2:
 else:
     print 'No argv Input!'
 
-
+'''
 #将所有记录写入txt中，方法以后处理，采用dict.items()方法获取
 file_w=open('table_list.txt','w')
 for lis in dic_table.items():
@@ -118,13 +130,24 @@ for lis in dic_center.items():
     except:
         pass
 file_w.close()        
+'''
+print u"########################################################"
+print u"\t\tCRM新旧模型表对应关系工具".encode("GBK")
+print u"\t\tversion 1.0"
+print u"\t\t创建人：Barry"
+print u"########################################################"
+
 
 
 while True:
-    target=raw_input("请输入表名：")
+    target=raw_input(u"请输入表名：(输入Q或q退出程序)\n".encode("GBK"))
+    if target=='q' or target=='Q':
+        break
     try:
-        print dic_table[target]
-        print dic_center[dic_table[target]]
+        print '旧CRM模型表名：\t'.encode("GBK")+target.encode("GBK")
+        print '新BSS模型表名：\t'.encode("GBK")+dic_table[target].encode("GBK")
+        print 'BSS所属中心：\t'.encode("GBK")+dic_center[dic_table[target]].encode("GBK")
     except:
-        print 'Table not exists:'+target
-        
+        print '未能找到新模型对应表，情检查输入是否有误！'.encode("GBK")
+    
+
